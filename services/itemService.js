@@ -133,6 +133,19 @@ exports.getUserHistory = async (currentUserId) => {
   return userHistories
 };
 
+
+
+exports.getUserHistory = async (currentUserId) => {
+  const db = getDbProvider();
+
+  const userHistories = await db.getUserHistory(currentUserId);
+
+  return userHistories
+};
+
+
+
+
 // GET ALL HISTORY
 // Description: gets all history from database
 // Precondition: none
@@ -202,30 +215,30 @@ exports.getCategoryFromDB = async () => {
   const db = getDbProvider();
   const categories = await db.getAllCategories(); 
 
-  const map = new Map();
-  const result = [];
+//   const map = new Map();
+//   const result = [];
 
-  // 1. build lookup map
-  categories.forEach(cat => {
-    map.set(cat.id, {
-      id: cat.id,
-      name: cat.name,
-      subCategories: []
-    });
-  });
+//   // 1. build lookup map
+//   categories.forEach(cat => {
+//     map.set(cat.id, {
+//       id: cat.id,
+//       name: cat.name,
+//       subCategories: []
+//     });
+//   });
 
-  // 2. build tree
-  categories.forEach(cat => {
-    if (cat.parentId) {
-      const parent = map.get(cat.parentId);
+//   // 2. build tree
+//   categories.forEach(cat => {
+//     if (cat.parentId) {
+//       const parent = map.get(cat.parentId);
 
-      if (parent) {
-        parent.subCategories.push(map.get(cat.id));
-      }
-    } else {
-      result.push(map.get(cat.id));
-    }
-  });
+//       if (parent) {
+//         parent.subCategories.push(map.get(cat.id));
+//       }
+//     } else {
+//       result.push(map.get(cat.id));
+//     }
+//   });
 
   return result;
 };

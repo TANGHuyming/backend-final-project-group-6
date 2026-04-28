@@ -126,15 +126,15 @@ class MongoProvider extends DatabaseProvider {
     };
   }
 
-  mapCategory(category) {
-    if (!category) return null;
+  // mapCategory(category) {
+  //   if (!category) return null;
 
-    return {
-      id: String(category._id),
-      name: category.name,
-      parentId: String(category.parentId) || null,
-    };
-  }
+  //   return {
+  //     id: String(category._id),
+  //     name: category.name,
+  //     parentId: String(category.parentId) || null,
+  //   };
+  // }
 
   getImageStream(imageName) {
     return this.itemsBucket.openDownloadStream(
@@ -534,80 +534,80 @@ class MongoProvider extends DatabaseProvider {
     });
   }
 
-  async getAllCategories() {
-    const categories = await Category.find().lean();
+//   async getAllCategories() {
+//     const categories = await Category.find().lean();
 
-    return categories.map((c) => this.mapCategory(c));
-  }
+//     return categories.map((c) => this.mapCategory(c));
+//   }
 
-  async addCategory(name) {
-    return await Category.create({
-      name,
-      parentId: null
-    });
-  }
+//   async addCategory(name) {
+//     return await Category.create({
+//       name,
+//       parentId: null
+//     });
+//   }
 
-  async addSubCategory(categoryId, name) {
-    const parent = await Category.findById(categoryId);
-    if (!parent) {
-      throw new Error("Parent category not found");
-    }
+//   async addSubCategory(categoryId, name) {
+//     const parent = await Category.findById(categoryId);
+//     if (!parent) {
+//       throw new Error("Parent category not found");
+//     }
 
-    return await Category.create({
-      name,
-      parentId: categoryId
-    });
-  }
+//     return await Category.create({
+//       name,
+//       parentId: categoryId
+//     });
+//   }
 
-  async deleteCategory(categoryId) {
-    const category = await Category.findById(categoryId);
+//   async deleteCategory(categoryId) {
+//     const category = await Category.findById(categoryId);
 
-    if (!category) {
-      throw new Error("Category not found");
-    }
+//     if (!category) {
+//       throw new Error("Category not found");
+//     }
 
-    const itemCount = await Item.countDocuments({
-      category: category.name
-    });
+//     const itemCount = await Item.countDocuments({
+//       category: category.name
+//     });
 
-    if (itemCount > 0) {
-      throw new Error("Cannot delete category with items");
-    }
+//     if (itemCount > 0) {
+//       throw new Error("Cannot delete category with items");
+//     }
 
-    await Category.deleteMany({ parentId: categoryId });
+//     await Category.deleteMany({ parentId: categoryId });
 
-    return await Category.findByIdAndDelete(categoryId);
-  }
+//     return await Category.findByIdAndDelete(categoryId);
+//   }
 
-  async updateSubCategory(subCategoryId, data) {
-    const subCategory = await Category.findById(subCategoryId);
-    if (!subCategory) {
-      throw new Error("Subcategory not found");
-    }
+//   async updateSubCategory(subCategoryId, data) {
+//     const subCategory = await Category.findById(subCategoryId);
+//     if (!subCategory) {
+//       throw new Error("Subcategory not found");
+//     }
 
-    const update = {};
+//     const update = {};
 
-    if (data.name) {
-      update.name = data.name;
-    }
+//     if (data.name) {
+//       update.name = data.name;
+//     }
 
-    if (data.parentId) {
-      const parent = await Category.findById(data.parentId);
-      if (!parent) {
-        throw new Error("New parent category not found");
-      }
+//     if (data.parentId) {
+//       const parent = await Category.findById(data.parentId);
+//       if (!parent) {
+//         throw new Error("New parent category not found");
+//       }
 
-      update.parentId = data.parentId;
-    }
+//       update.parentId = data.parentId;
+//     }
 
-    const updated = await Category.findByIdAndUpdate(
-      subCategoryId,
-      update,
-      { new: true }
-    ).lean();
+//     const updated = await Category.findByIdAndUpdate(
+//       subCategoryId,
+//       update,
+//       { new: true }
+//     ).lean();
 
-    return this.mapCategory(updated);
-  }
+//     return this.mapCategory(updated);
+//   }
 }
 
 module.exports = MongoProvider;

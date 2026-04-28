@@ -631,22 +631,7 @@ exports.showItemHistory = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // Call the API endpoint
-    const apiBaseUrl = config.BASE_URL ? config.BASE_URL : `http://localhost:${process.env.PORT || 3000}`;
-    const apiUrl = new URL(`/api/items/${id}/history`, apiBaseUrl);
-
-    const apiResponse = await fetch(apiUrl.toString(), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${req.cookies.accessToken}`
-      }
-    });
-
-    if (!apiResponse.ok) {
-      throw new Error('API request failed');
-    }
-
-    const itemHistories = await apiResponse.json();
+    const itemHistories = await itemService.getDBItemHistoriesById(id);
 
     let context = {
       ...itemHistories,

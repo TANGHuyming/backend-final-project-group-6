@@ -7,25 +7,6 @@
 
 <div class="p-6">
 
-  <!-- WELCOME SECTION -->
-  <div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-800">Welcome back!</h1>
-    <p class="text-gray-600 mt-2">Manage your asset checkouts and returns efficiently</p>
-  </div>
-
-  <!-- QUICK ACTIONS -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-    <a href="/items?page=1" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl shadow transition text-center font-semibold">
-      Browse Items
-    </a>
-    <a href="/owned" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl shadow transition text-center font-semibold">
-      My Checkouts
-    </a>
-    <a href="/report" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl shadow transition text-center font-semibold">
-      View Reports
-    </a>
-  </div>
-
   <!-- CARDS -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
     <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
@@ -49,13 +30,13 @@
     <h2 class="text-xl font-bold mb-4">Your Recent Transactions</h2>
     {{#if dashboardData.recentTransactions.length}}
     <table class="min-w-full border border-gray-200 rounded-lg">
-      <thead class="bg-gray-800 text-white">
+      <thead class="bg-blue-500 text-white">
         <tr>
           <th class="px-4 py-2 text-left">ID</th>
-          <th class="px-4 py-2 text-left">USER</th>
-          <th class="px-4 py-2 text-left">ITEM</th>
-          <th class="px-4 py-2 text-left">TYPE</th>
-          <th class="px-4 py-2 text-left">DATE</th>
+          <th class="px-4 py-2 text-left">User</th>
+          <th class="px-4 py-2 text-left">Item</th>
+          <th class="px-4 py-2 text-left">Type</th>
+          <th class="px-4 py-2 text-left">Date</th>
         </tr>
       </thead>
       <tbody>
@@ -75,53 +56,6 @@
     {{else}}
       <p class="text-gray-500">No transaction data found for this account.</p>
     {{/if}}
-  </div>
-
-  <!-- HELPFUL GUIDELINES -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-    <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-blue-500">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">How to Checkout Items</h3>
-      <ul class="space-y-2 text-sm text-gray-700">
-        <li>✓ Browse the items catalog</li>
-        <li>✓ Check item availability</li>
-        <li>✓ Select desired duration</li>
-        <li>✓ Upload supporting documentation</li>
-        <li>✓ Submit checkout request</li>
-      </ul>
-    </div>
-
-    <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-blue-500">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">Return Guidelines</h3>
-      <ul class="space-y-2 text-sm text-gray-700">
-        <li>✓ Check in items on or before due date</li>
-        <li>✓ Inspect items for damage</li>
-        <li>✓ Gather required documentation</li>
-        <li>✓ Upload proof of return</li>
-        <li>✓ Submit checkin to complete</li>
-      </ul>
-    </div>
-
-    <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-blue-500">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">Important Reminders</h3>
-      <ul class="space-y-2 text-sm text-gray-700">
-        <li>⚠ Track your checkout due dates</li>
-        <li>⚠ Avoid overdue returns</li>
-        <li>⚠ Keep items in good condition</li>
-        <li>⚠ Report issues immediately</li>
-        <li>⚠ Update documentation as needed</li>
-      </ul>
-    </div>
-
-    <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-blue-500">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">Useful Resources</h3>
-      <ul class="space-y-2 text-sm text-gray-700">
-        <li>📊 View your transaction history</li>
-        <li>📋 Check item details & specs</li>
-        <li>📈 Access your reports & analytics</li>
-        <li>💬 Contact support if needed</li>
-        <li>📱 Use this system on mobile</li>
-      </ul>
-    </div>
   </div>
 
 </div>

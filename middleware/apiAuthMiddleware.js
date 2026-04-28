@@ -3,6 +3,7 @@ const secret = process.env.JWT_SECRET || "your-super-secret-key";
 const { getDbProvider } = require("../utils/dbProviderShared");
 const { verifyToken } = require("./authMiddleware")
 
+
 // APIPROTECT (API version of protect using JWT TOKEN)
 async function apiProtect(req, res, next) {
   try {

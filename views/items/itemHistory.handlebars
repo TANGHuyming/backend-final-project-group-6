@@ -4,43 +4,38 @@
         <p class="text-gray-500 mt-1">All history for this item</p>
     </div>
 
-    <div class="w-full max-w-6xl shadow-lg bg-white p-6 rounded-2xl">
-        <div class="overflow-x-auto">
-            <table class="w-full border border-gray-200">
-                <thead class="bg-blue-500 text-white">
-                    <tr>
-                        <th class="px-4 py-2 text-left">ID</th>
-                        <th class="px-4 py-2 text-left">ASSIGNEE</th>
-                        <th class="px-4 py-2 text-left">DURATION</th>
-                        <th class="px-4 py-2 text-left">ACTION</th>
-                        <th class="px-4 py-2 text-left">DATE</th>
-                        <th class="px-4 py-2 text-left">REFERENCE LINK</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        {{#if isEmpty}}
+    <div class="w-full max-w-6xl max-h-screen overflow-scroll md:overflow-hidden shadow-lg bg-white p-6">
+        <table class="w-full border border-gray-200">
+            <thead class="bg-blue-500 text-white">
+                <tr>
+                    <th class="px-4 py-2 text-left">ID</th>
+                    <th class="px-4 py-2 text-left">Assignee</th>
+                    <th class="px-4 py-2 text-left">Duration</th>
+                    <th class="px-4 py-2 text-left">Action</th>
+                    <th class="px-4 py-2 text-left">Date</th>
+                    <th class="px-4 py-2 text-left">Reference Link</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {{#if isEmpty}}
+                        <tr class="border-b">
+                            <td colspan="100%" class="font-mono text-center text-gray-400 p-6">
+                                No history for this items
+                            </td>
+                        </tr>
+                    {{else}}
+                        {{#each itemHistories}}
                             <tr class="border-b">
-                                <td colspan="100%" class="font-mono text-center text-gray-400 p-6">
-                                    No history for this items
-                                </td>
+                                <td class="px-4 py-2 font-mono text-xs">{{this.id}}</td>
+                                <td class="px-4 py-2">{{this.assignee}}</td>
+                                <td class="px-4 py-2">{{this.duration}}hr</td>
+                                <td class="px-4 py-2">{{this.action}}</td>
+                                <td class="px-4 py-2">{{formatDate this.createdAt}}</td>
+                                <td class="px-4 py-2">{{this.referenceLink}}</td>
                             </tr>
-                        {{else}}
-                            {{#each itemHistories}}
-                                <tr class="border-b">
-                                    <td class="px-4 py-2 font-mono text-xs">{{this.id}}</td>
-                                    <td class="px-4 py-2">{{this.assignee}}</td>
-                                    <td class="px-4 py-2">{{this.duration}}hr</td>
-                                    <td class="px-4 py-2">{{this.action}}</td>
-                                    <td class="px-4 py-2">{{formatDate this.createdAt}}</td>
-                                    <td class="px-4 py-2">{{this.referenceLink}}</td>
-                                </tr>
-                            {{/each}}
-                        {{/if}}
-                    </tbody>
-            </table>
-        </div>
-        {{#if itemHistories.length}} 
-            {{>historyPaginator}}
-        {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </tbody>
+        </table>
     </div>
 </main>

@@ -9,7 +9,7 @@ const User = require("./models/mongoUserModel");
 const Item = require("./models/mongoItemsModel");
 const ItemHistory = require("./models/mongoItemHistoriesModel");
 const ApiKey = require("./models/mongoAPIkeysModel");
-const Category = require("./models/mongoCategoryModel");
+// const Category = require("./models/mongoCategoryModel");
 
 class MongoProvider extends DatabaseProvider {
   constructor() {
@@ -54,7 +54,7 @@ class MongoProvider extends DatabaseProvider {
       Item.init(),
       ItemHistory.init(),
       ApiKey.init(),
-      Category.init()
+      // Category.init()
     ]);
 
     console.log("MongoDB initialized");

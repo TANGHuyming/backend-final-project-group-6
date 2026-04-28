@@ -39,44 +39,44 @@
             <h2 class="text-lg font-semibold mb-4">Asset Aging (3+ Years)</h2>
             {{#if oldAssets.length}}
             <div class="overflow-x-auto">
-            <table class="w-full text-left border border-gray-200">
+            <table class="w-full text-left border border-gray-400">
 
             {{!-- table header --}}
-            <thead class="bg-gray-800 text-white uppercase tracking-wider">
+            <thead class="bg-gray-500/50 text-black text-xs uppercase tracking-wider border-b border-gray-400">
                 <tr>
-                    <th class="px-4 py-2">ID</th>
-                    <th class="px-4 py-2">Name</th>
-                    <th class="px-4 py-2">Serial number</th>
-                    <th class="px-4 py-2">Category</th>
-                    <th class="px-4 py-2">Sub Category</th>
-                    <th class="px-4 py-2">Status</th>
-                    <th class="px-4 py-2">Date Acquired</th>
+                    <th class="p-4 border-r border-gray-400">ID</th>
+                    <th class="p-4 border-r border-gray-400">Name</th>
+                    <th class="p-4 border-r border-gray-400">Serial number</th>
+                    <th class="p-4 border-r border-gray-400">Category</th>
+                    <th class="p-4 border-r border-gray-400">Sub Category</th>
+                    <th class="p-4 border-r border-gray-400">Status</th>
+                    <th class="p-4">Date Acquired</th>
                 </tr>
             </thead>
 
             <tbody>
                 {{#each oldAssets}}
-                    <tr class="border-b hover:bg-gray-50 transition">
+                    <tr class="border-t border-gray-400 hover:bg-gray-100 transition">
 
                         {{!-- ID --}}
-                        <td class="px-4 py-2 font-mono text-xs font-semibold">
+                        <td class="p-4 font-semibold text-gray-700 border-r border-gray-400">
                             {{this.id}}
                         </td>
 
                         {{!-- NAME --}}
-                        <td class="px-4 py-2">
+                        <td class="p-4 border-r border-gray-400">
                             <a href="/items/{{this.id}}" class="font-medium text-blue-600 hover:underline">
                                 {{this.name}}
                             </a>
                         </td>
 
                         {{!-- Serial --}}
-                        <td class="px-4 py-2 text-gray-700">
+                        <td class="p-4 font-semibold text-gray-700 border-r border-gray-400">
                             {{this.serial}}
                         </td>
 
                         {{!-- Category --}}
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.category}}
                                 {{this.category}}
                             {{else}}
@@ -86,7 +86,7 @@
 
 
                         <!-- Sub -->
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.subCategory}}
                                 {{this.subCategory}}
                             {{else}}
@@ -95,7 +95,7 @@
                         </td>
 
                         <!-- Status -->
-                        <td class="px-4 py-2">
+                        <td class="p-4 border-r border-gray-400">
                             {{#if (eq this.status "In-Use")}}
                                 <span class="px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800">
                                     Overdue
@@ -105,14 +105,14 @@
                                     Active
                                 </span>
                             {{else}}
-                                <span class="px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800">
+                                <span class="px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800 ">
                                     Maintenance
                                 </span>
                             {{/if}}
                         </td>
 
                         {{!--Date --}}
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.formatted}}
                                 {{this.formatted}}
                             {{else}}
@@ -163,41 +163,41 @@
             </form>
 
             {{#if userAudit.length}}
-                <div class="w-full overflow-x-auto">
-                <table class="w-full text-left border border-gray-200">
+                <div class="w-full overflow-x-auto bg-white">
+                <table class="w-full text-left border border-gray-400">
 
                 {{!-- table header --}}
-                <thead class="bg-blue-500 text-white tracking-wider">
+                <thead class="bg-gray-500/50 text-black text-xs uppercase tracking-wider border-b border-gray-400">
                     <tr>
-                        <th class="px-4 py-2">ID</th>
-                        <th class="px-4 py-2">Item</th>
-                        <th class="px-4 py-2">Date Received</th>
-                        <th class="px-4 py-2">Borrow duration</th>
-                        <th class="px-4 py-2">Return Date</th>
-                        <th class="px-4 py-2">Status</th>
-                        <th class="px-4 py-2">Action</th>
+                        <th class="p-4 border-r border-gray-400">ID</th>
+                        <th class="p-4 border-r border-gray-400">Item</th>
+                        <th class="p-4 border-r border-gray-400">Date Received</th>
+                        <th class="p-4 border-r border-gray-400">Borrow duration</th>
+                        <th class="p-4 border-r border-gray-400">Return Date</th>
+                        <th class="p-4 border-r border-gray-400">Status</th>
+                        <th class="p-4">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
                 {{#each userAudit}}
 
-                    <tr class="border-b hover:bg-gray-50 transition">
+                    <tr class="border-t border-gray-400 hover:bg-gray-100 transition">
 
                         {{!-- ID --}}
-                        <td class="px-4 py-2 font-mono text-xs font-semibold">
+                        <td class="p-4 font-semibold text-gray-700 border-r border-gray-400">
                             {{this.id}}
                         </td>
 
                         {{!-- NAME --}}
-                        <td class="px-4 py-2">
+                        <td class="p-4 border-r border-gray-400">
                             <a href="/items/{{this.id}}" class="font-medium text-blue-600 hover:underline">
                                 {{this.name}}
                             </a>
                         </td>
 
                         {{!-- RECEIVED --}}
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.createdAt}}
                                 {{this.createdAt}}
                             {{else}}
@@ -206,7 +206,7 @@
                         </td>
 
                         {{!-- DURATION --}}
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.duration}}
                                 {{this.duration}}
                             {{else}}
@@ -216,7 +216,7 @@
 
 
                         <!-- DUE -->
-                        <td class="px-4 py-2 text-gray-800">
+                        <td class="p-4 text-gray-800 border-r border-gray-400">
                             {{#if this.dueDate}}
                                 {{this.dueDate}}
                             {{else}}
@@ -225,7 +225,7 @@
                         </td>
 
                         <!-- Status -->
-                        <td class="px-4 py-2">
+                        <td class="p-4 border-r border-gray-400">
                             {{#if (eq this.status "overdue")}}
                                 <span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
                                     Overdue
@@ -242,7 +242,7 @@
                         </td>
 
                         {{!--Action --}}
-                        <td class="px-4 py-2">
+                        <td class="p-4">
                             <a
                                 href="/api/files/docs/{{this.referenceUrl}}"
                                 target="_blank"

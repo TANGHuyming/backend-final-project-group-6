@@ -276,9 +276,9 @@ exports.getDBItemById = async (id) => {
   return await db.getItemById(id);
 };
 
-exports.getDBItemBySerial = async (id) => {
+exports.getDBItemsBySerial = async (id) => {
   const db = getDbProvider();
-  return await db.getItemBySerial(id);
+  return await db.getItemsBySerial(id);
 }
 
 // CREATE ITEM
@@ -306,10 +306,13 @@ exports.updateDBItem = async (id, data) => {
 exports.deleteDBItem = async (id) => {
   const db = getDbProvider();
   const item = await db.getItemById(id);
-  const newItem = {
-    ...item,
-    status: "Retired",
-  };
+  
+  if (!item) {
+    return {
+      type: "error",
+      redirect: `/items?error=Item+not+found`,
+    };
+  }
 
   if(item.status === "In-Use") {
     return {
@@ -317,6 +320,11 @@ exports.deleteDBItem = async (id) => {
       redirect: `/items/${id}?error=Item+in-use+cannot+be+retired`,
     };
   }
+
+  const newItem = {
+    ...item,
+    status: "Retired",
+  };
 
   await db.updateItem(id, newItem);
 

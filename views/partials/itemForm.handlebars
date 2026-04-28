@@ -2,7 +2,8 @@
     {{!-- add form --}}
     <div class="w-full shadow-lg shadow-gray-500 p-4 rounded-lg gap-2 bg-white">
         <h2 class="text-xl text-center font-semibold w-1/2 justify-self-center self-center">Add New Item</h2>
-        <form action="/items" method="POST" enctype="multipart/form-data"
+        <form
+            id="addForm"
             class="grid grid-cols-1 sm:grid-cols-[30%_1fr] grid-rows-auto gap-2"
         >
             <label for="name">Item name: </label>
@@ -146,8 +147,9 @@
 {{/if}}
 
 <script>
-    const form = document.getElementById('updateForm');
+    const updateForm = document.getElementById('updateForm');
     const category = document.getElementById('category');
+    const addForm = document.getElementById('addForm');
 
     // grab the right subcategories based on user selected category
     if (category) {
@@ -172,15 +174,33 @@
         });
     }
 
-    if (form) {
-        const itemId = "{{id}}";
-
-        form.addEventListener('submit', async (event) => {
+    if (addForm) {
+        addForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const formData = new FormData(form);
+            const formData = new FormData(addForm);
 
-            const response = await fetch(`/items/${itemId}`, {
+            const response = await fetch(`/api/items`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                window.location.href = data.redirect;
+            }
+        });
+    }
+
+    if (updateForm) {
+        const itemId = "{{id}}";
+
+        updateForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(updateForm);
+
+            const response = await fetch(`/api/items/${itemId}`, {
                 method: 'PUT',
                 body: formData
             });

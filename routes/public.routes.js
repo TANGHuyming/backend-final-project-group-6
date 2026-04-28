@@ -17,9 +17,9 @@ router.get("/items", protect, publicController.showItems);
 router.get("/items/:id", protect, publicController.showItemDetail);
 router.get("/items/:id/history", protect, publicController.showItemHistory);
 
-router.post("/items", protect, publicController.addItem);
-router.put("/items/:id", protect, publicController.editItem);
-router.delete("/items/:id", protect,requireRole("Admin"), publicController.deleteItem);
+// router.post("/items", protect, publicController.addItem); // comment out to use api post
+// router.put("/items/:id", protect, publicController.editItem); // comment out to use api put
+// router.delete("/items/:id", protect,requireRole("Admin"), publicController.deleteItem); // comment out to use api delete
 
 // Owned (should done but a little empty)
 router.get("/owned", protect, publicController.showOwned);

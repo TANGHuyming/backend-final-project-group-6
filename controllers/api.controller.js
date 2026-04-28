@@ -311,13 +311,13 @@ exports.createItem = async (req, res, next) => {
 
     // an error in form processing must've occured
     if (type?.toLowerCase() === "error") {
-      return res.redirect(apiRedirect);
+      return res.status(400).redirect(apiRedirect);
     }
 
     if (!statuses.map(s => s.name).includes(status)) {
-      return res.json({
+      return res.status(400).json({
         type: "error",
-        redirect: `/api/items/${id}?error=Status+must+be+available+or+maintenance`,
+        redirect: `/items?error=Status+must+be+available+or+maintenance`,
       });
     }
 
@@ -340,7 +340,7 @@ exports.createItem = async (req, res, next) => {
     return res.json({
       ...newItem,
       type: "success",
-      redirect: "/api/items?success=Item+added+successfully"
+      redirect: "/items?success=Item+added+successfully"
     });
   } catch (err) {
     next(err);
@@ -405,40 +405,40 @@ exports.editItem = async (req, res, next) => {
 
     const statuses = [{ name: "Available" }, { name: "Maintenance" }];
 
-    const existing = await itemService.getDBItemBySerial(serial);
+    const existing = await itemService.getDBItemsBySerial(serial);
     
-    if (existing) {
-      return res.json({
+    if (existing && existing.length > 1) {
+      return res.status(400).json({
         type: "error",
         redirect: "/items?error=Serial+already+exists"
       });
     }
 
     if (type?.toLowerCase() === "error") {
-      return res.json({
+      return res.status(400).json({
         type: error,
-        redirect: `/api${redirect}`,
+        redirect: `/${redirect}`,
       });
     }
 
     if (!item) {
-      return res.json({
+      return res.status(400).json({
         type: "error",
-        redirect: `/api/items/${id}?error=Item+not+found`,
+        redirect: `/items/${id}?error=Item+not+found`,
       });
     }
 
     if (item.status === "In-Use") {
-      return res.json({
+      return res.status(400).json({
         type: "error",
-        redirect: `/api/items/${id}?error=Item+in-use+cannot+be+edited`,
+        redirect: `/items/${id}?error=Item+in-use+cannot+be+edited`,
       });
     }
 
     if (!statuses.map(s => s.name).includes(status)) {
-      return res.json({
+      return res.status(400).json({
         type: "error",
-        redirect: `/api/items/${id}?error=Status+must+be+available+or+maintenance`,
+        redirect: `/items/${id}?error=Status+must+be+available+or+maintenance`,
       });
     }
 
@@ -474,9 +474,12 @@ exports.deleteItem = async (req, res, next) => {
 
   try {
     const response = await itemService.deleteDBItem(id);
-    response.redirect = `/api/${response.redirect}`;
+    
+    // Return appropriate status code based on response type
+    const statusCode = response.type === "error" ? 400 : 200;
+    response.redirect = `${response.redirect}`;
 
-    return res.json(response);
+    return res.status(statusCode).json(response);
   } catch (err) {
     next(err);
   }

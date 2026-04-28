@@ -127,7 +127,7 @@
     }
 
     confirmRetireBtn.addEventListener('click', async (event) => {
-        const response = await fetch(`/items/${itemId}`, {
+        const response = await fetch(`/api/items/${itemId}`, {
             method: 'DELETE'
         });
 

@@ -10,6 +10,7 @@ const itemService = require("../services/itemService");
 const userService = require("../services/userService");
 const adminService = require("../services/adminService");  
 const { db } = require("../data/models/mongoUserModel");
+const config = require("../config/app.config");
 
 // GET: /HOME ---------------------------------------------- need to fix later
 exports.home = async (req, res, next) => {
@@ -104,53 +105,147 @@ exports.home = async (req, res, next) => {
   }
 };
 
+// DONT DELETE THIS
 // GET: /items ----------------
+// exports.showItems = async (req, res, next) => {
+//   const { cat, q, subcat, isRetired, error, success } = req.query;
+//   let page = req.query.page;
+//   const pageSize = 12; // items to show per page
+
+//   try {
+//     let { items, categories } = await itemService.getDBFilteredItems({
+//       cat, 
+//       subcat, 
+//       q, 
+//       isRetired
+//     });
+
+//     // append query parameters to URL
+//     let url = "/items?";
+
+//     if (subcat) url += `subcat=${subcat}&`;
+//     if (cat) url += `cat=${cat}&`;
+//     if (q) url += `q=${q}&`;
+//     if (isRetired) url += `isRetired=${isRetired}&`;
+//     if (error) url += `error=${error}&`;
+//     if (success) url += `success=${success}&`;
+
+//     // append page number to URL
+//     if (!page) {
+//       url += `page=1`;
+//       return res.redirect(url);
+//     }
+
+//     page = parseInt(page);
+
+//     // calculate total pages
+//     const total = items.length;
+//     const totalPages = Math.ceil(total / pageSize);
+//     const totalPagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+//     // set page range
+//     const start = (page - 1) * pageSize;
+//     const end = start + pageSize;
+//     items = items.slice(start, end);
+
+//     // pagination
+//     const prevPage = page > 1 ? page - 1 : null;
+//     const nextPage = page < totalPages ? page + 1 : null;
+
+//     const pagesToRender = totalPagesArray.slice(
+//       Math.max(0, page - 2),
+//       Math.min(totalPages, page + 1)
+//     );
+
+//     const statuses = [
+//       { name: "Available" },
+//       { name: "Maintenance" },
+//     ];
+
+//     // for security's sake, please don't return the entire user object. The password hash is there
+//     const exclude = ['email', 'passwordHash'];
+//     const keyFilteredUser = Object.fromEntries(
+//       Object.entries(req.user).filter(([key]) => !exclude.includes(key))
+//     );
+
+//     res.render("items/items", {
+//       categories,
+//       items,
+//       statuses,
+//       prevPage,
+//       nextPage,
+//       totalPages: pagesToRender,
+//       currentPage: page,
+//       user: keyFilteredUser || null,
+//       error: error || null,
+//       success: success || null,
+//       pageTitle: "Items",
+//     });
+//   }
+//   catch(err) {
+//     next(err);
+//   }
+// };
+
+// for if we have to use the API
 exports.showItems = async (req, res, next) => {
   const { cat, q, subcat, isRetired, error, success } = req.query;
   let page = req.query.page;
-  const pageSize = 12; // items to show per page
+  const pageSize = 12;
 
   try {
-    let { items, categories } = await itemService.getDBFilteredItems({
-      cat, 
-      subcat, 
-      q, 
-      isRetired
+    // Call the API endpoint
+    const apiBaseUrl = config.BASE_URL ? config.BASE_URL : `http://localhost:${process.env.PORT || 3000}`;
+    const apiUrl = new URL('/api/items', apiBaseUrl);
+    
+    // Pass query parameters to API (only if they're defined)
+    if (cat && cat !== 'undefined') apiUrl.searchParams.append('cat', cat);
+    if (q && q !== 'undefined') apiUrl.searchParams.append('q', q);
+    if (subcat && subcat !== 'undefined') apiUrl.searchParams.append('subcat', subcat);
+    if (isRetired && isRetired !== 'undefined') apiUrl.searchParams.append('isRetired', isRetired);
+    if (error && error !== 'undefined') apiUrl.searchParams.append('error', error);
+    if (success && success !== 'undefined') apiUrl.searchParams.append('success', success);
+
+    const apiResponse = await fetch(apiUrl.toString(), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${req.cookies.accessToken}`
+      }
     });
 
-    // append query parameters to URL
+    if (!apiResponse.ok) {
+      const errorData = await apiResponse.text();
+      throw new Error(`API request failed (${apiResponse.status}): ${errorData}`);
+    }
+    
+    const { categories, items: allItems } = await apiResponse.json();
+
+    // Handle pagination (same as before)
     let url = "/items?";
-
-    if (subcat) url += `subcat=${subcat}&`;
-    if (cat) url += `cat=${cat}&`;
-    if (q) url += `q=${q}&`;
-    if (isRetired) url += `isRetired=${isRetired}&`;
-    if (error) url += `error=${error}&`;
-    if (success) url += `success=${success}&`;
-
-    // append page number to URL
+    if (subcat && subcat !== 'undefined') url += `subcat=${subcat}&`;
+    if (cat && cat !== 'undefined') url += `cat=${cat}&`;
+    if (q && q !== 'undefined') url += `q=${q}&`;
+    if (isRetired && isRetired !== 'undefined') url += `isRetired=${isRetired}&`;
+    if (error && error !== 'undefined') url += `error=${error}&`;
+    if (success && success !== 'undefined') url += `success=${success}&`;
+    
     if (!page) {
       url += `page=1`;
       return res.redirect(url);
     }
 
     page = parseInt(page);
-
-    // calculate total pages
-    const total = items.length;
+    const total = allItems.length;
     const totalPages = Math.ceil(total / pageSize);
-    const totalPagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-    // set page range
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-    items = items.slice(start, end);
+    const items = allItems.slice(start, end);
 
     // pagination
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const pagesToRender = totalPagesArray.slice(
+    const pagesToRender = Array.from({ length: totalPages }, (_, i) => i + 1).slice(
       Math.max(0, page - 2),
       Math.min(totalPages, page + 1)
     );
@@ -160,11 +255,11 @@ exports.showItems = async (req, res, next) => {
       { name: "Maintenance" },
     ];
 
-    // for security's sake, please don't return the entire user object. The password hash is there
+    // for security's sake, filter out sensitive user data
     const exclude = ['email', 'passwordHash'];
-    const keyFilteredUser = Object.fromEntries(
+    const keyFilteredUser = req.user ? Object.fromEntries(
       Object.entries(req.user).filter(([key]) => !exclude.includes(key))
-    );
+    ) : null;
 
     res.render("items/items", {
       categories,
@@ -174,104 +269,185 @@ exports.showItems = async (req, res, next) => {
       nextPage,
       totalPages: pagesToRender,
       currentPage: page,
-      user: keyFilteredUser || null,
-      error: error || null,
-      success: success || null,
+      user: keyFilteredUser,
+      error: error && error !== 'undefined' ? error : null,
+      success: success && success !== 'undefined' ? success : null,
       pageTitle: "Items",
     });
-  }
-  catch(err) {
+  } catch(err) {
     next(err);
   }
 };
 
-exports.addItem = async (req, res, next) => {
-  try {
-    const {
-      filePath,
-      fileBuffer, 
-      fileName, 
-      mimeType,
-      name, 
-      description, 
-      brand, 
-      model, 
-      category, 
-      subCategory, 
-      serial, 
-      status, 
-      dateAcquired,
-      type,
-      redirect,
-    } = await itemService.processItemForm(req);
+// DONT DELETE THIS
+// exports.addItem = async (req, res, next) => {
+//   try {
+//     const {
+//       filePath,
+//       fileBuffer, 
+//       fileName, 
+//       mimeType,
+//       name, 
+//       description, 
+//       brand, 
+//       model, 
+//       category, 
+//       subCategory, 
+//       serial, 
+//       status, 
+//       dateAcquired,
+//       type,
+//       redirect,
+//     } = await itemService.processItemForm(req);
 
-    const statuses = [
-      { name: "Available" },
-      { name: "Maintenance" },
-    ];
+//     const statuses = [
+//       { name: "Available" },
+//       { name: "Maintenance" },
+//     ];
 
-    // an error in form processing must've occured
-    if (type?.toLowerCase() === "error") {
-      return res.redirect(redirect);
-    }
+//     // an error in form processing must've occured
+//     if (type?.toLowerCase() === "error") {
+//       return res.redirect(redirect);
+//     }
 
-    const existing = await itemService.getDBItemBySerial(serial);
+//     const existing = await itemService.getDBItemBySerial(serial);
 
-    if (existing) {
-      return res.redirect("/items?error=Serial+already+exists");
-    }
+//     if (existing) {
+//       return res.redirect("/items?error=Serial+already+exists");
+//     }
 
-    if (
-      !name ||
-      !description ||
-      !brand ||
-      !model ||
-      !category ||
-      !serial ||
-      !status
-    ) {
-      return res.redirect("/items?error=Missing+required+fields");
-    }
+//     if (
+//       !name ||
+//       !description ||
+//       !brand ||
+//       !model ||
+//       !category ||
+//       !serial ||
+//       !status
+//     ) {
+//       return res.redirect("/items?error=Missing+required+fields");
+//     }
 
-    if(!statuses.map(s => s.name).includes(status)) {
-      return res.redirect(`/api/items?error=Status+must+be+available+or+maintenance`);
-    }
+//     if(!statuses.map(s => s.name).includes(status)) {
+//       return res.redirect(`/api/items?error=Status+must+be+available+or+maintenance`);
+//     }
 
-    const newItem = {
-      name,
-      description,
-      brand,
-      model,
-      category,
-      subCategory,
-      serial,
-      status,
-      dateAcquired,
-      imageName: filePath,
-      imageAlt: `Image of ${name}`,       // add 'imageAlt ||' later if img alt given 
-    };
+//     const newItem = {
+//       name,
+//       description,
+//       brand,
+//       model,
+//       category,
+//       subCategory,
+//       serial,
+//       status,
+//       dateAcquired,
+//       imageName: filePath,
+//       imageAlt: `Image of ${name}`,       // add 'imageAlt ||' later if img alt given 
+//     };
 
-    await itemService.createDBItem(newItem);
+//     await itemService.createDBItem(newItem);
 
-    return res.redirect("/items?success=Item+added+successfully");
-  }
-  catch (err) {
-    next(err);
-  }
-}
+//     return res.redirect("/items?success=Item+added+successfully");
+//   }
+//   catch (err) {
+//     next(err);
+//   }
+// }
 
+// DONT DELETE THIS
+// exports.showItemDetail = async (req, res, next) => {
+//   const { id } = req.params;
+//   const { error, success } = req.query;
+
+//   try {
+//     let item = await itemService.getDBItemById(id);
+//     const categories = await itemService.getCategoryFromDB();
+
+//     if (!item) {
+//       res.status(404);
+//       return res.render("extra_pages/404");
+//     }
+
+//     const statuses = [
+//       { name: "Available" },
+//       { name: "Maintenance" },
+//     ];
+
+//     let context = {
+//       ...item,
+//       categories,
+//       statuses,
+//       isEdit: true,
+//       isDelete: true,
+//       isRetired: item.status === "Retired",
+//       pageTitle: "ItemDetail",
+//     };
+
+//     if (error) {
+//       context = {
+//         ...context,
+//         error,
+//       };
+//     }
+//     if (error) {
+//       context = {
+//         ...context,
+//         error,
+//       };
+//     }
+
+//     if (success) {
+//       context = {
+//         ...context,
+//         success,
+//       };
+//     }
+//     if (success) {
+//       context = {
+//         ...context,
+//         success,
+//       };
+//     }
+
+//     res.render("items/itemDetail", context);
+//   }
+//   catch(err) {
+//     next(err);
+//   }
+// };
+
+// for if we have to use the API
 exports.showItemDetail = async (req, res, next) => {
   const { id } = req.params;
   const { error, success } = req.query;
 
   try {
-    let item = await itemService.getDBItemById(id);
-    const categories = await itemService.getCategoryFromDB();
+    // Call the API endpoint
+    const apiBaseUrl = config.BASE_URL ? config.BASE_URL : `http://localhost:${process.env.PORT || 3000}`;
+    const apiUrl = new URL(`/api/items/${id}`, apiBaseUrl);
+    
+    // Pass query parameters to API
+    if (error && error !== 'undefined') apiUrl.searchParams.append('error', error);
+    if (success && success !== 'undefined') apiUrl.searchParams.append('success', success);
 
-    if (!item) {
-      res.status(404);
-      return res.render("extra_pages/404");
+    const apiResponse = await fetch(apiUrl.toString(), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${req.cookies.accessToken}`
+      }
+    });
+
+    if (!apiResponse.ok) {
+      if (apiResponse.status === 404) {
+        res.status(404);
+        return res.render("extra_pages/404");
+      }
+      throw new Error('API request failed');
     }
+    
+    const item = await apiResponse.json();
+    const categories = await itemService.getCategoryFromDB();
 
     const statuses = [
       { name: "Available" },
@@ -285,152 +461,194 @@ exports.showItemDetail = async (req, res, next) => {
       isEdit: true,
       isDelete: true,
       isRetired: item.status === "Retired",
+      error: error && error !== 'undefined' ? error : null,
+      success: success && success !== 'undefined' ? success : null,
       pageTitle: "ItemDetail",
     };
 
-    if (error) {
-      context = {
-        ...context,
-        error,
-      };
-    }
-    if (error) {
-      context = {
-        ...context,
-        error,
-      };
-    }
-
-    if (success) {
-      context = {
-        ...context,
-        success,
-      };
-    }
-    if (success) {
-      context = {
-        ...context,
-        success,
-      };
-    }
-
     res.render("items/itemDetail", context);
-  }
-  catch(err) {
-    next(err);
-  }
-};
-
-exports.editItem = async (req, res, next) => {
-  const { id } = req.params;
-
-  try {
-    const item = await itemService.getDBItemById(id);
-    const {
-      filePath,
-      fileBuffer, 
-      fileName, 
-      mimeType,
-      name, 
-      description, 
-      brand, 
-      model, 
-      category, 
-      subCategory, 
-      serial, 
-      status, 
-      dateAcquired,
-      type,
-      redirect,
-    } = await itemService.processItemForm(req);
-
-    const statuses = [{ name: "Available" }, { name: "Maintenance" }];
-
-    const existing = await itemService.getDBItemBySerial(serial);
-
-    if (existing) {
-      return res.redirect("/items?error=Serial+already+exists");
-    }
-
-    if (type?.toLowerCase() === "error") {
-      return res.json({
-        type,
-        redirect,
-      });
-    }
-
-    if (item.status === "In-Use") {
-      return res.json({
-        type: "error",
-        redirect: `/items/${id}?error=Item+in-use+cannot+be+edited`,
-      });
-    }
-
-    if (
-      !name ||
-      !description ||
-      !brand ||
-      !model ||
-      !serial
-    ) {
-      return res.json({
-        type: "error",
-        redirect: `/items/${id}?error=Missing+required+fields`,
-      })
-    }
-
-    if(!statuses.map(s => s.name).includes(status)) {
-      return res.json({
-        type: "error",
-        redirect: `/items/${id}?error=Status+must+be+available+or+maintenance`,
-      });
-    }
-
-    const newItem = {
-      name: name || item.name,
-      description: description || item.description,
-      brand: brand || item.brand,
-      model: model || item.model,
-      category: category || item.category,
-      subCategory: subCategory || item.subCategory,
-      serial: serial || item.serial,
-      status: status || item.status,
-      dateAcquired: dateAcquired || item.dateAcquired,
-      imageName: filePath || item.image_name,
-      imageAlt: `Image of ${name || item.name}`,
-      imageUrl: filePath || item.imageUrl,
-    };
-
-    await itemService.updateDBItem(id, newItem);
-
-    return res.json({
-      type: "success",
-      redirect: `/items/${id}?success=Item+updated+successfully`,
-    });
   } catch (err) {
     next(err);
   }
 };
+
+// DONT DELETE THIS
+// exports.editItem = async (req, res, next) => {
+//   const { id } = req.params;
+
+//   try {
+//     const item = await itemService.getDBItemById(id);
+//     const {
+//       filePath,
+//       fileBuffer, 
+//       fileName, 
+//       mimeType,
+//       name, 
+//       description, 
+//       brand, 
+//       model, 
+//       category, 
+//       subCategory, 
+//       serial, 
+//       status, 
+//       dateAcquired,
+//       type,
+//       redirect,
+//     } = await itemService.processItemForm(req);
+
+//     const statuses = [{ name: "Available" }, { name: "Maintenance" }];
+
+//     const existing = await itemService.getDBItemBySerial(serial);
+
+//     if (existing) {
+//       return res.redirect("/items?error=Serial+already+exists");
+//     }
+
+//     if (type?.toLowerCase() === "error") {
+//       return res.json({
+//         type,
+//         redirect,
+//       });
+//     }
+
+//     if (item.status === "In-Use") {
+//       return res.json({
+//         type: "error",
+//         redirect: `/items/${id}?error=Item+in-use+cannot+be+edited`,
+//       });
+//     }
+
+//     if (
+//       !name ||
+//       !description ||
+//       !brand ||
+//       !model ||
+//       !serial
+//     ) {
+//       return res.json({
+//         type: "error",
+//         redirect: `/items/${id}?error=Missing+required+fields`,
+//       })
+//     }
+
+//     if(!statuses.map(s => s.name).includes(status)) {
+//       return res.json({
+//         type: "error",
+//         redirect: `/items/${id}?error=Status+must+be+available+or+maintenance`,
+//       });
+//     }
+
+//     const newItem = {
+//       name: name || item.name,
+//       description: description || item.description,
+//       brand: brand || item.brand,
+//       model: model || item.model,
+//       category: category || item.category,
+//       subCategory: subCategory || item.subCategory,
+//       serial: serial || item.serial,
+//       status: status || item.status,
+//       dateAcquired: dateAcquired || item.dateAcquired,
+//       imageName: filePath || item.image_name,
+//       imageAlt: `Image of ${name || item.name}`,
+//       imageUrl: filePath || item.imageUrl,
+//     };
+
+//     await itemService.updateDBItem(id, newItem);
+
+//     return res.json({
+//       type: "success",
+//       redirect: `/items/${id}?success=Item+updated+successfully`,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 // soft deletes only 
-exports.deleteItem = async (req, res, next) => {
-  const { id } = req.params;
+// exports.deleteItem = async (req, res, next) => {
+//   const { id } = req.params;
 
-  try {
-    const response = await itemService.deleteDBItem(id);
-    return res.json(response);
-  } catch (err) {
-    next(err);
-  }
-};
+//   try {
+//     const response = await itemService.deleteDBItem(id);
+//     return res.json(response);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
+// exports.showItemHistory = async (req, res, next) => {
+//   const { id } = req.params;
+//   const pageSize = 10;
+//   let page = req.query.page;
+
+//   try {
+//     const itemHistories = await itemService.getDBItemHistoriesById(id);
+
+//     if (!page) {
+//       return res.redirect(`/items/${id}/history?page=1`);
+//     }
+
+//     page = parseInt(page);
+
+//     const histories = itemHistories.itemHistories || [];
+//     const total = histories.length;
+//     const totalPages = Math.ceil(total / pageSize);
+//     const totalPagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+//     const start = (page - 1) * pageSize;
+//     const end = start + pageSize;
+//     const paginatedHistories = histories.slice(start, end);
+
+//     const prevPage = page > 1 ? page - 1 : null;
+//     const nextPage = page < totalPages ? page + 1 : null;
+
+//     const pagesToRender = totalPagesArray.slice(
+//       Math.max(0, page - 2),
+//       Math.min(totalPages, page + 1)
+//     );
+
+//     let context = {
+//       ...itemHistories,
+//       itemHistories: paginatedHistories,
+//       isEmpty: paginatedHistories.length === 0 && total === 0,
+//       prevPage,
+//       nextPage,
+//       currentPage: page,
+//       totalPages: pagesToRender,
+//       pageLink: `items/${id}/history`,
+//       pageTitle: "Item History",
+//     };
+
+//     res.render("items/itemHistory", context);
+//   }
+//   catch(err) {
+//     next(err)
+//   }
+// };
+
+// for if we have to use the API
 exports.showItemHistory = async (req, res, next) => {
   const { id } = req.params;
   const pageSize = 10;
   let page = req.query.page;
 
   try {
-    const itemHistories = await itemService.getDBItemHistoriesById(id);
+    // Call the API endpoint
+    const apiBaseUrl = config.BASE_URL ? config.BASE_URL : `http://localhost:${process.env.PORT || 3000}`;
+    const apiUrl = new URL(`/api/items/${id}/history`, apiBaseUrl);
+
+    const apiResponse = await fetch(apiUrl.toString(), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${req.cookies.accessToken}`
+      }
+    });
+
+    if (!apiResponse.ok) {
+      throw new Error('API request failed');
+    }
+
+    const itemHistories = await apiResponse.json();
 
     if (!page) {
       return res.redirect(`/items/${id}/history?page=1`);

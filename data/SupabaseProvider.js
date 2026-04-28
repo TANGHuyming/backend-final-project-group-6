@@ -340,7 +340,7 @@ class SupabaseProvider extends DatabaseProvider {
     };
   }
 
-  async getItemBySerial(serial) {
+  async getItemsBySerial(serial) {
     const { data, error } = await this.supabase
       .from(SUPABASE_TABLES.ITEMS)
       .select("*")

@@ -305,15 +305,15 @@ class MongoProvider extends DatabaseProvider {
     };
   }
 
-  async getItemBySerial(serial) {
-    const item = await Item.findOne({ serial }).lean();
+  async getItemsBySerial(serial) {
+    const items = await Item.find({ serial }).lean();
 
-    if (!item) return null;
+    if (!items) return null;
 
-    return {
-      ...this.mapItem(item),
-      imageUrl: this.getImageUrl(item.imageName),
-    };
+    return items.map((i) => ({
+      ...this.mapItem(i),
+      imageUrl: this.getImageUrl(i.imageName),
+    }));
   }
 
   async createItem(data) {
